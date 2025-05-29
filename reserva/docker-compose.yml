@@ -1,0 +1,25 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  reservas_api:
+    build: . # Constrói a imagem a partir do Dockerfile neste diretório
+    ports:
+      - "5000:5000" # Mapeia a porta 5000 do host para a porta 5000 do contêiner
+    volumes:
+      # Monta o diretório local da aplicação no contêiner. Útil para desenvolvimento (código atualiza sem reconstruir)
+      # Remova ou comente esta linha para um build de produção, onde o código já está na imagem
+      - .:/app
+      # Opcional: Montar um volume para o banco de dados SQLite para persistir dados
+      # - db_data:/app/app/site.db # O caminho dentro do contêiner é /app/app/site.db por causa da estrutura
+    environment:
+      # Define variáveis de ambiente, como a chave secreta
+      SECRET_KEY: sua_chave_secreta_aqui # Mude isso!
+      # DATABASE_URL: sqlite:////app/app/site.db # Se você quisesse configurar via env var
+    # Opcional: Adicionar dependências se houvesse outros serviços (ex: um banco de dados externo)
+    # depends_on:
+    #   - outro_servico_db
+
+# Opcional: Define volumes se você os montou acima
+# volumes:
+#   db_data:
