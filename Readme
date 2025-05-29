@@ -1,1 +1,62 @@
+# reserva_sala# Microsserviço de Reservas de Salas
+
+Este é o microsserviço responsável pelo gerenciamento de reservas de salas de aula. Ele interage com o microsserviço de Sistema de Gerenciamento, referenciando turmas através de seus IDs.
+
+## Descrição da API
+
+A API de Reservas permite:
+- Cadastrar novas salas (via POST `/salas`)
+- Listar salas existentes (via GET `/salas`)
+- Realizar novas reservas de salas para turmas específicas (via POST `/reservas`)
+- Listar reservas existentes (via GET `/reservas`)
+- ... (liste todas as funcionalidades/endpoints)
+
+Os dados são persistidos em um banco de dados SQLite.
+
+## Arquitetura Utilizada
+
+O projeto segue o padrão arquitetural **Model-View-Controller (MVC)**:
+- **Model:** Definido em `app/models.py`, utilizando SQLAlchemy para mapear objetos Python para tabelas no banco de dados SQLite (`site.db`).
+- **View:** Arquivos HTML localizados em `app/templates/` (se houver interface web). Para endpoints que retornam dados, a "View" é a serialização dos dados (ex: JSON) retornada pela rota.
+- **Controller:** Implementado nas funções de rota em `app/routes.py`, que recebem requisições HTTP, interagem com os Models (banco de dados) e preparam a resposta (JSON ou renderizam View).
+- A inicialização da aplicação e das extensões ocorre em `app/__init__.py`.
+- As configurações são centralizadas em `app/config.py`.
+
+## Ecossistema de Microsserviços
+
+Este microsserviço faz parte de um ecossistema maior que inclui:
+1.  **Sistema de Gerenciamento:** API principal para gerenciar alunos, professores e turmas.
+2.  **Reservas:** Este microsserviço, responsável pelas reservas de salas. Ele se comunica com o Sistema de Gerenciamento **recebendo o ID da Turma** nas requisições de reserva. Ele não consulta diretamente o Sistema de Gerenciamento, apenas usa o `turma_id` como uma referência externa.
+3.  **Atividades:** Microsserviço responsável pelo controle de atividades, vinculado ao ID do professor (provavelmente interage com o Sistema de Gerenciamento para obter o `professor_id`).
+
+A comunicação entre os serviços se dá principalmente através de requisições HTTP (RESTful APIs).
+
+## Instruções de Execução (com Docker)
+
+Certifique-se de ter o Docker e o Docker Compose instalados na sua máquina.
+
+1.  Clone este repositório:
+    ```bash
+    git clone <URL do seu repositório de Reservas>
+    cd <diretório do repositório>
+    ```
+2.  Construa a imagem Docker e inicie o contêiner usando Docker Compose:
+    ```bash
+    docker-compose up --build -d
+    ```
+    - `build`: Constrói a imagem Docker a partir do `Dockerfile`.
+    - `-d`: Executa o contêiner em modo "detached" (em segundo plano).
+3.  A API estará acessível em `http://localhost:5000`.
+4.  Para ver os logs do contêiner:
+    ```bash
+    docker-compose logs reservas_api
+    ```
+5.  Para parar o contêiner:
+    ```bash
+    docker-compose down
+    ```
+
+**Notas:**
+- O banco de dados SQLite (`site.db`) será criado dentro do contêiner no diretório `/app/app/`. Para persistir os dados entre execuções do contêiner, considere configurar um volume Docker no `docker-compose.yml`.
+- Se você modificou o `Dockerfile` para usar `flask run` em vez de `gunicorn`, remova o `-d` do comando `up` para ver a saída do servidor Flask diretamente no seu terminal.
 
